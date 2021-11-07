@@ -5,9 +5,7 @@ import numpy as np
 import pickle
 import datetime
 import time
-
 from numpy import round
-from sklearn.impute import SimpleImputer
 
 modelo_knn = pickle.load(open('modeloKNN.pkl', 'rb'))
 modelo_svm = pickle.load(open('modeloSVM.pkl', 'rb'))
@@ -68,7 +66,7 @@ def st_interface():
                                                  help="Puede seleccionar archivo xlsx/csv para su predicción")
     col1, col2, col3 = st.columns(3)
     if uploaded_file is None:
-        ##time.sleep(2)
+        time.sleep(2)
         #Selectores Panel DERECHO
         st.subheader("CONDICIONES ")
 

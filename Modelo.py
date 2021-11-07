@@ -1,4 +1,3 @@
-
 import pandas as pd
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
@@ -7,10 +6,13 @@ from sklearn.model_selection import train_test_split
 import pickle
 
 def modelo_entrenamiento():
+
     datos = pd.read_excel("Post_datos_planificacionHassPeru(20101-20212).xlsx")
+
     X=datos[['anio','campania','fundo_nro','superficie_sembrada_ha','edad_planta','Temp_Semestral']].values
     y=datos['superficie_cosechada_ha'].values
-    X_e,X_p,Y_e,Y_p=train_test_split(X,y,test_size=0.3)
+
+    X_e,X_p,Y_e,Y_p=train_test_split(X,y,test_size=0.3, random_state=0)
 
     #modelos
     knn=KNeighborsRegressor(n_neighbors=4)
