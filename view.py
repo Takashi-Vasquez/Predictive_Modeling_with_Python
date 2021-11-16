@@ -394,16 +394,12 @@ def automatico(auth,db,storage,email,password):
 
             if descargar is not None:
                 combineData = pd.concat([df, datasets], axis=0)
-                # @st.cache
-                # def convert_df(df):
-                #    return df\
                 dato=combineData.to_excel('datos_planificacion.xlsx',index=False)
-                # convert_df(combineData)
                 user = auth.sign_in_with_email_and_password(email, password)
                 path_local = "datos_planificacion.xlsx"
                 path_on_cloud = db.child(user['localId']).child("Nombres")\
                                 .get().val() + "/Excel/datos_planificacion.xlsx"
-                fireb_upload = storage.child(path_on_cloud).put(dato,user['idToken'])
+                fireb_upload = storage.child(path_on_cloud).put('datos_planificacion.xlsx',user['idToken'])
                 excel_url=storage.child(path_on_cloud).get_url(fireb_upload['downloadTokens'])
                 db.child(user['localId']).child("Excel").push(excel_url)
 
