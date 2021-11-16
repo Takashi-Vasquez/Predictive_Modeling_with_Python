@@ -99,7 +99,7 @@ elif choice == 'Login':
 
   checkbox = st.sidebar.checkbox('Ingresar')
   if checkbox:
-    # try:
+    try:
       user = auth.sign_in_with_email_and_password(email, password)
       st.subheader("BIENVENIDO " + db.child(user['localId']).child("User").get().val().upper())
       st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
@@ -137,11 +137,9 @@ elif choice == 'Login':
         elif pagina == "Automático":
           view.automatico(auth,db,storage,email,password)
 
+    except :
+        st.error("Contraseña incorrecta")
 
-    # except:
-    #   while True:
-    #     st.error("Contraseña incorrecta")
-    #     break
 
   else :
     st.title("Los mejores frutos de nuestra tierra by HassPerú")
