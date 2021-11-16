@@ -1,0 +1,10 @@
+Clave para creacion de cuenta:
+
+'Owner'
+Clave: B*WAjkMR*:
+
+'Manager'
+Clave: iM8IA3
+
+'Operator'
+Clave: hpHIKY
