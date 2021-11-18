@@ -99,14 +99,14 @@ elif choice == 'Login':
 
   checkbox = st.sidebar.checkbox('Ingresar')
   if checkbox:
-    try:
+    # try:
       user = auth.sign_in_with_email_and_password(email, password)
       st.subheader("BIENVENIDO " + db.child(user['localId']).child("User").get().val().upper())
       st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
       clasificador=db.child(user['localId']).child("Rol").get().val()
       if clasificador == "Owner":
         # MENU BAR
-        pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático','🌤️Pronostico'])
+        pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático','🌤️Pronostico','⚙️Set-Training-Model'])
         if pagina[1::]=="Home":
           view.home()
         elif pagina[1::]=="Dashboard":
@@ -117,6 +117,8 @@ elif choice == 'Login':
           view.automatico(auth,db,storage,email,password)
         elif pagina[2::]=="Pronostico":
           view.pronostico()
+        elif pagina[2::]=="Set-Training-Model":
+          view.ModeloEntrenamiento()
 
       elif clasificador == "Manager":
         # MENU BAR
@@ -137,8 +139,8 @@ elif choice == 'Login':
         elif pagina == "Automático":
           view.automatico(auth,db,storage,email,password)
 
-    except :
-        st.error("Contraseña incorrecta")
+    # except :
+    #     st.error("Contraseña incorrecta")
 
 
   else :

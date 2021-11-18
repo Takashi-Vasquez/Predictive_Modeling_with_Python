@@ -10,7 +10,7 @@ from numpy import round
 import app
 from app import *
 import SENAMHI
-
+from Modelo import modelo_entrenamiento
 
 modelo_knn = pickle.load(open('modeloKNN.pkl', 'rb'))
 modelo_svm = pickle.load(open('modeloSVM.pkl', 'rb'))
@@ -22,13 +22,13 @@ now = datetime.now()
 
 def prediccion(input_arr,menuopciones):
     if menuopciones == 'Regresion lineal':
-        st.write("seleccionaste regresion")
+        st.write("Modelo Regresion Lineal")
         prediccion_result = modelo_rl.predict(input_arr)
     elif menuopciones == 'KNN':
-        st.write("seleccionaste KNN")
+        st.write("Modelo KNN")
         prediccion_result =modelo_knn.predict(input_arr)
     elif menuopciones == 'SVM':
-        st.write("seleccionaste SVM")
+        st.write("Modelo SVM")
         prediccion_result =modelo_svm.predict(input_arr)
     return prediccion_result
 
@@ -461,6 +461,61 @@ def pronostico():
                     unsafe_allow_html=True)
     except:
         st.error("La página de Senamhi ha caido")
+def ModeloEntrenamiento():
+    st.title("Ajustar el Modelo de Entrenamiento")
+    #importar datasets a entrenar
+    csv = st.file_uploader("Cargue el Archivo", type=['xlsx', 'csv'],
+                                     help="Puede seleccionar archivo xlsx/csv para su predicción")
+    # prediccion de los datos cargados
+    if csv is not None:
+        df = pd.read_excel(csv, dtype={'superficie_cosechada_ha': np.float64,
+                                                 'produccion_tm': np.float64,
+                                                 'rendimiento_kgxha': np.float64,
+                                                 'cant_abonoOrg(kg)': np.float64,
+                                                 'abonoTotal(kg)': np.float64},
+                                                 na_values=np.nan)
+        st.dataframe(df.style.format({'superficie_cosechada_ha': '{:.2f}',
+                                          'produccion_tm': '{:.2f}',
+                                          'rendimiento_kgxha': '{:.2f}',
+                                          'cant_abonoOrg(kg)': '{:.0f}','Temp_Semestral': '{:.1f}',
+                                          'abonoTotal(kg)': '{:.0f}'}).set_properties(**{'text-align': 'center'}), 1000)
+    else:
+        df= pd.read_excel("Post_datos_planificacionHassPeru(20101-20212).xlsx")
+
+    with st.expander("train_test_split"):
+        test_size   = st.slider('tamaño de prueba', min_value=0.1,max_value=0.9,value=0.3)
+        random_state=st.slider("estado aleatorio", min_value=1,max_value=50,value=10)
+        shuffle=st.radio('Shuffle',['True','False'])
+    with st.expander("KNeighborsRegressor"):
+        n_neighbors= st.number_input("K neighbors",min_value=1,max_value=30,value=4)
+    with st.expander("SVR"):
+        C=st.slider('Parámetro de regularización (C)', min_value=0.1,max_value=5.0,value=0.3,step=1.0)
+        gamma=st.radio('Gamma',['auto','scale'])
+        epsilon=st.number_input('Epsilon ', min_value=0.1, max_value=10.0, value=5.0, step=2.0)
+    col1,col2,col3=st.columns(3)
+    ajustarModelo= col2.button("Ajustar Modelo")
+
+    if ajustarModelo:
+        scoreKNN,scoreRL,scoreSVM=modelo_entrenamiento(df,test_size,random_state,shuffle,n_neighbors,C,gamma,epsilon)
+        if scoreRL > 75:
+            st.success(f"Precisión RL: {str(scoreRL)} %")
+        elif scoreRL > 25 and scoreRL < 75:
+            st.warning(f"Precisión RL: {str(scoreRL)} %")
+        elif scoreRL < 25:
+            st.error(f"Precisión RL: {str(scoreRL)} %")
+        if scoreKNN > 75:
+            st.success(f"Precisión KNN: {str(scoreKNN)} %")
+        elif scoreKNN > 25 and scoreKNN < 75:
+            st.warning(f"Precisión KNN: {str(scoreKNN)} %")
+        elif scoreKNN < 25:
+            st.error(f"Precisión KNN: {str(scoreKNN)} %")
+        if scoreSVM > 75:
+            st.success(f"Precisión SVR: {str(scoreSVM)} %")
+        elif scoreSVM > 25 and scoreSVM < 75:
+            st.warning(f"Precisión SVR: {str(scoreSVM)} %")
+        elif scoreSVM < 25:
+            st.error(f"Precisión SVR: {str(scoreSVM)} %")
+
 # if __name__ == "__main__":
 #     st_interface()
 
