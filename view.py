@@ -7,7 +7,6 @@ import numpy as np
 import pickle
 import plotly.express as px
 from numpy import round
-import app
 from app import *
 import SENAMHI
 from Modelo import modelo_entrenamiento
