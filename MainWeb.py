@@ -42,9 +42,9 @@ roles = {"B*WAjkMR*:": "Owner", "iM8IA3": "Manager", "hpHIKY": "Operator"}
 
 hide_st_style = """
             <style>
-            #MainMenu {visibility: hidden;}
+            --#MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
-            header {visibility: hidden;}
+            --header {visibility: hidden;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
@@ -109,11 +109,11 @@ elif choice == 'Login':
         # MENU BAR
         pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático','🌤️Pronostico','⚙️Set-Training-Model'])
         if pagina[1::]=="Home":
-          view.home(auth,db,storage,email,password)
+          view.home()
         elif pagina[1::]=="Dashboard":
-          view.dashboard(auth,db,storage,email,password)
+          view.dashboard(auth,db,email,password)
         elif pagina[1::]=="Manual":
-          view.Manual(auth, db, storage, email, password)
+          view.Manual(storage)
         elif pagina[1::]=="Automático":
           view.automatico(auth,db,storage,email,password)
         elif pagina[2::]=="Pronostico":

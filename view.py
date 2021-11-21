@@ -10,13 +10,7 @@ from numpy import round
 import SENAMHI
 from Modelo import modelo_entrenamiento
 
-def Binarios(auth,db,storage,email,password):
-    user = auth.sign_in_with_email_and_password(email, password)
-    # modeloKNN = storage.child("gs://db-hassperu.appspot.com/Modelo Entrenamiento/Data/dataSets.pkl")
-    # print("***************************************************************************************************")
-    # print("***************************************************************************************************")
-
-
+def Binarios(storage):
     path_on_cloudKNN = "/Modelo Entrenamiento/KNN/modeloKNN.pkl"
     path_on_cloudRL = "/Modelo Entrenamiento/RL/modeloRL.pkl"
     path_on_cloudSVM = "/Modelo Entrenamiento/SVM/modeloSVM.pkl"
@@ -27,23 +21,6 @@ def Binarios(auth,db,storage,email,password):
     storage.child(path_on_cloudSVM).download("", "modeloSVM.pkl")
     storage.child(path_on_cloudData).download("", "dataSets.pkl")
     storage.child(path_on_cloudScore).download("", "score.pkl")
-
-    #anexo
-    # codigoKNN = db.child(user['localId']).child("Binario/KNN")
-    # codigoRL = db.child(user['localId']).child("Binario/RL").get()
-    # codigoSVM = db.child(user['localId']).child("Binario/SVM").get()
-    # codigoData = db.child(user['localId']).child("Binario/Data").get()
-    # codigoScore = db.child(user['localId']).child("Binario/Score").get()
-    # for data in codigoKNN.each():
-    #     modeloKNN = data.val()
-    # for data in codigoRL.each():
-    #     modeloRL = data.val()
-    # for data in codigoSVM.each():
-    #     modeloSVM = data.val()
-    # for data in codigoData.each():
-    #     BiDatasets = data.val()
-    # for data in codigoScore.each():
-    #     BiScore = data.val()
 
     modelo_knn = pickle.load(open("modeloKNN.pkl", 'rb'))
     modelo_svm = pickle.load(open("modeloSVM.pkl", 'rb'))
@@ -70,9 +47,9 @@ def prediccion(input_arr,menuopciones):
         prediccion_result =modelo_svm.predict(input_arr)
     return prediccion_result
 
-def sidebar(auth, db, storage, email, password):
+def sidebar(storage):
     try:
-        modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(auth, db, storage, email, password)
+        modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(storage)
         # Selectores Panel izquierdo
         opciones = ['Regresion lineal', 'KNN', 'SVM']
         global menuopciones
@@ -105,7 +82,7 @@ def sidebar(auth, db, storage, email, password):
 
 
 #HOME PAGE
-def home(auth,db,storage,email,password):
+def home():
     st.title("Los mejores frutos de nuestra tierra by HassPerú")
     imagen=Image.open("Image/HassPeru.png")
     st.image(imagen, caption='Frescura, calidad y sabor', width=700)
@@ -114,7 +91,7 @@ def home(auth,db,storage,email,password):
                 "paltas Hass y arándano a nivel nacional e internacional.</p>", unsafe_allow_html=True)
     st.markdown("Web Site: [HASS PERÚ](http://www.hassperu.com/es/)")
 #Dashboard
-def dashboard(auth,db,storage,email,password):
+def dashboard(auth,db,email,password):
     try:
         #Marco de datos
         st.title("📊 RESULTADO-DASHBOARD")
@@ -225,7 +202,7 @@ def dashboard(auth,db,storage,email,password):
                 produccion_by_fundo_line,
                 y="superficie_cosechada_ha",
                 x=produccion_by_fundo_line.index,
-                title="<b>Hectarea Cosechada Anualmente</b>",
+                title="<b>Hectarea Cosechada por Fundos</b>",
                 color_discrete_sequence=["#0083B8"] * len(produccion_by_fundo_line),
                 template="plotly_white",
             )
@@ -275,7 +252,7 @@ def dashboard(auth,db,storage,email,password):
                          color="category",
                          color_discrete_sequence=["#18bfae","#df6e03"],
                          text="campania",
-                         title="International Visitors",
+                         title="<b>Producción por campañas(Años)</b>",
                          animation_frame="anio",
                          barmode="group"
                             )
@@ -289,7 +266,7 @@ def dashboard(auth,db,storage,email,password):
             fig_produccion_circular = px.sunburst(
                 df_selection,
                 values="produccion_tm",
-                title="<b>Hectarea Cosechada Anualmente</b>",
+                title="<b>Producción anual por fundos</b>",
                 names="anio",
                 path=['anio', 'fundo_nro'],
 
@@ -303,8 +280,8 @@ def dashboard(auth,db,storage,email,password):
     except IOError:
      st.error("No hay ningún archivo en el Storage descarga en Automático")
 
-def Manual(auth, db, storage, email, password):
-    sidebar(auth, db, storage, email, password)
+def Manual(storage):
+    sidebar(storage)
     #time.sleep(2)
     #Selectores Panel DERECHO
     st.subheader("CONDICIONES ")
@@ -334,9 +311,9 @@ def Manual(auth, db, storage, email, password):
         resultadoPredicción = prediccion(input_arr, menuopciones)
         st.write('Superficie Cosechada:     ',round(resultadoPredicción[0],2))
 def automatico(auth,db,storage,email,password):
-    modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(auth, db, storage, email, password)
+    modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(storage)
 
-    sidebar(auth, db, storage, email, password)
+    sidebar(storage)
     # Importacion de datos
     uploaded_file = st.file_uploader("Cargue el Archivo", type=['xlsx', 'csv'],
                                              help="Puede seleccionar archivo xlsx/csv para su predicción")
