@@ -7,14 +7,7 @@ from PIL import Image
 
 #configuracion de la pagina
 st.set_page_config(page_title="HassPerú", page_icon="🥑",initial_sidebar_state='collapsed')
-# hide_st_style = """
-#             <style>
-#             --#MainMenu {visibility: hidden;}
-#             footer {visibility: hidden;}
-#             --header {visibility: hidden;}
-#             </style>
-#             """
-# st.markdown(hide_st_style, unsafe_allow_html=True)
+
 
 # Configuracion de  clave
 firebaseConfig = {
@@ -47,9 +40,14 @@ email = st.sidebar.text_input('Correo')
 password = st.sidebar.text_input('Contraseña',type = 'password')
 roles = {"B*WAjkMR*:": "Owner", "iM8IA3": "Manager", "hpHIKY": "Operator"}
 
-def Datos():
-  print("hola mundo")
-  return auth,db,storage,email,password
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # Sign up Block
 if choice == 'Sign up':

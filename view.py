@@ -7,7 +7,6 @@ import numpy as np
 import pickle
 import plotly.express as px
 from numpy import round
-from MainWeb import auth,db,storage,email,password,Datos
 import SENAMHI
 from Modelo import modelo_entrenamiento
 
