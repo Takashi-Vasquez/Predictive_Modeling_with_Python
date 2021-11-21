@@ -1,5 +1,6 @@
 from datetime import  datetime
 import time
+import arrow
 import streamlit as st
 from PIL import Image
 import pandas as pd
@@ -34,8 +35,8 @@ now = datetime.now()
 
 global modelo_knn, modelo_svm, modelo_rl, score, datasets
 
-def prediccion(input_arr,menuopciones):
-
+def prediccion(input_arr,menuopciones,storage):
+    modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(storage)
     if menuopciones == 'Regresion lineal':
         st.write("Modelo Regresion Lineal")
         prediccion_result = modelo_rl.predict(input_arr)
@@ -91,18 +92,14 @@ def home():
                 "paltas Hass y arándano a nivel nacional e internacional.</p>", unsafe_allow_html=True)
     st.markdown("Web Site: [HASS PERÚ](http://www.hassperu.com/es/)")
 #Dashboard
-def dashboard(auth,db,email,password):
+def dashboard(auth,db,storage,email,password):
     try:
         #Marco de datos
         st.title("📊 RESULTADO-DASHBOARD")
         st.markdown("##")
-        user = auth.sign_in_with_email_and_password(email,password)
-        codigo = db.child(user['localId']).child("Excel").get()
-        print(codigo)
-        for data in codigo.each():
-            dato = data.val()
-
-        df = pd.read_excel(dato)
+        path_on_cloudExcel = "/Resultado/Excel/datos_planificacion.xlsx"
+        storage.child(path_on_cloudExcel).download("", "datos_planificacion.xlsx")
+        df = pd.read_excel("datos_planificacion.xlsx")
         #Top KPI
         total_Sembrada=int(df['superficie_sembrada_ha'].sum())
         total_Cosechada =int(df['superficie_cosechada_ha'].sum())
@@ -308,18 +305,17 @@ def Manual(storage):
     # Envia las entradas al modelo.
     if st.button("Predecir"):
         input_arr = np.array([year, campaña, fundopciones, superf_Sembrada,edad_Planta,Temp]).reshape(1, -1)
-        resultadoPredicción = prediccion(input_arr, menuopciones)
+        resultadoPredicción = prediccion(input_arr, menuopciones,storage)
         st.write('Superficie Cosechada:     ',round(resultadoPredicción[0],2))
 def automatico(auth,db,storage,email,password):
     modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(storage)
-
     sidebar(storage)
     # Importacion de datos
     uploaded_file = st.file_uploader("Cargue el Archivo", type=['xlsx', 'csv'],
                                              help="Puede seleccionar archivo xlsx/csv para su predicción")
-    col1, col2, col3 = st.columns(3)
     #prediccion de los datos cargados
     if uploaded_file is not None:
+
         df = pd.read_excel(uploaded_file, dtype={'superficie_cosechada_ha': np.float64,
                                                 'produccion_tm': np.float64,
                                                 'rendimiento_kgxha': np.float64,
@@ -329,7 +325,6 @@ def automatico(auth,db,storage,email,password):
         #IMPUTACIÓN DE LOS DATOS
         # st.text(df.isnull().sum())
         df= df.fillna(0)
-        # time.sleep(2)
         st.markdown(
             '<h3 style="text-align:center; font-family:arial;color:white">Datos Importados</h3>',unsafe_allow_html=True)
         st.dataframe(df.style.format({'superficie_cosechada_ha': '{:.2f}',
@@ -342,9 +337,8 @@ def automatico(auth,db,storage,email,password):
         if st.button("Predecir"):
             independiente=df[['anio','campania','fundo_nro','superficie_sembrada_ha','edad_planta','Temp_Semestral']]
 
-            df['superficie_cosechada_ha'] = round(prediccion(independiente, menuopciones),1)
+            df['superficie_cosechada_ha'] = round(prediccion(independiente, menuopciones,storage),1)
             with st.spinner('Espere por favor...'):
-                # time.sleep(5)
                 #COLUMNA SUPERFICIE COSECHADA
                 N_Fundo = df['fundo_nro']
                 conditionlist = [
@@ -409,17 +403,20 @@ def automatico(auth,db,storage,email,password):
                 dato=combineData.to_excel('datos_planificacion.xlsx',index=False)
                 user = auth.sign_in_with_email_and_password(email, password)
                 path_local = "datos_planificacion.xlsx"
-                path_on_cloud = db.child(user['localId']).child("Nombres")\
-                                .get().val() + "/Excel/datos_planificacion.xlsx"
+                # path_on_cloud = db.child(user['localId']).child("Nombres")\
+                #                 .get().val() + "/Resultado/Excel/datos_planificacion.xlsx"
+                path_on_cloud = "/Resultado/Excel/datos_planificacion.xlsx"
                 fireb_upload = storage.child(path_on_cloud).put('datos_planificacion.xlsx',user['idToken'])
                 excel_url=storage.child(path_on_cloud).get_url(fireb_upload['downloadTokens'])
                 db.child(user['localId']).child("Excel").push(excel_url)
 
 
 def pronostico():
-    try:
-        fecha = str(now.year) + "/" + str(now.month) + "/" + str(now.day)
-        hora = str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
+    # try:
+
+        IST = arrow.get(arrow.utcnow()).to('America/New_York')
+        fecha = str(IST.day) + "/" + str(IST.month) + "/" + str(IST.year)
+        hora =  str(IST.hour) + ":" + str(IST.minute) + ":" + str(IST.second)
         st.markdown("---")
         cl1, cl2, c3 = st.columns(3)
         cl2.subheader("Fecha: "+fecha)
@@ -477,8 +474,8 @@ def pronostico():
                     "<p>Fecha: "+str(now.year) + "/" + str(now.month) + "/" + str(now.day)+"</p>"
                     "Fuente: <a href= '"+link+"'>SENAMHI</a>",
                     unsafe_allow_html=True)
-    except:
-        st.error("La página de Senamhi ha caido")
+    # except:
+    #     st.error("La página de Senamhi ha caido")
 
 def ModeloEntrenamiento(auth,db,storage,email,password):
     st.title("Ajustar el Modelo de Entrenamiento")
@@ -542,21 +539,12 @@ def ModeloEntrenamiento(auth,db,storage,email,password):
         path_on_cloudSVM = "/Modelo Entrenamiento/SVM/modeloSVM.pkl"
         path_on_cloudData = "/Modelo Entrenamiento/Data/dataSets.pkl"
         path_on_cloudScore = "/Modelo Entrenamiento/Score/score.pkl"
-        fireb_uploadKNN = storage.child(path_on_cloudKNN).put("modeloKNN.pkl", user['idToken'])
-        fireb_uploadRL = storage.child(path_on_cloudRL).put("modeloRL.pkl", user['idToken'])
-        fireb_uploadSVM = storage.child(path_on_cloudSVM).put("modeloSVM.pkl", user['idToken'])
-        fireb_uploadData = storage.child(path_on_cloudData).put("dataSets.pkl", user['idToken'])
-        fireb_uploadScore = storage.child(path_on_cloudScore).put("score.pkl", user['idToken'])
-        # excel_urlKNN = storage.child(path_on_cloudKNN).get_url(fireb_uploadKNN['downloadTokens'])
-        # excel_urlRL = storage.child(path_on_cloudRL).get_url(fireb_uploadRL['downloadTokens'])
-        # excel_urlSVM = storage.child(path_on_cloudSVM).get_url(fireb_uploadSVM['downloadTokens'])
-        # excel_urlData = storage.child(path_on_cloudData).get_url(fireb_uploadData['downloadTokens'])
-        # excel_urlScore = storage.child(path_on_cloudScore).get_url(fireb_uploadScore['downloadTokens'])
-        # db.child(user['localId']).child("Binario/KNN").push(excel_urlKNN)
-        # db.child(user['localId']).child("Binario/RL").push(excel_urlRL)
-        # db.child(user['localId']).child("Binario/SVM").push(excel_urlSVM)
-        # db.child(user['localId']).child("Binario/Data").push(excel_urlData)
-        # db.child(user['localId']).child("Binario/Score").push(excel_urlScore)
+        storage.child(path_on_cloudKNN).put("modeloKNN.pkl", user['idToken'])
+        storage.child(path_on_cloudRL).put("modeloRL.pkl", user['idToken'])
+        storage.child(path_on_cloudSVM).put("modeloSVM.pkl", user['idToken'])
+        storage.child(path_on_cloudData).put("dataSets.pkl", user['idToken'])
+        storage.child(path_on_cloudScore).put("score.pkl", user['idToken'])
+
 
 # if __name__ == "__main__":
 #     st_interface()

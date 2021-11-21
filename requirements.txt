@@ -10,3 +10,4 @@ toml==0.10.2
 beautifulsoup4==4.10.0
 requests==2.26.0
 plotly==5.3.1
+arrow==1.2.1

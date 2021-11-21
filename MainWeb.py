@@ -1,7 +1,6 @@
 import pyrebase
 import streamlit as st
 import time
-from datetime import datetime
 import view
 from PIL import Image
 
@@ -92,7 +91,6 @@ elif choice == 'Login':
   check = st.sidebar.button('¿Olvidaste la contraseña?', key='Check')
   if check:
     with st.spinner(text="Se envio un correo"):
-      time.sleep(3)
       try:
         auth.send_password_reset_email(email)
       except:
@@ -111,7 +109,7 @@ elif choice == 'Login':
         if pagina[1::]=="Home":
           view.home()
         elif pagina[1::]=="Dashboard":
-          view.dashboard(auth,db,email,password)
+          view.dashboard(auth,db,storage,email,password)
         elif pagina[1::]=="Manual":
           view.Manual(storage)
         elif pagina[1::]=="Automático":
@@ -123,22 +121,36 @@ elif choice == 'Login':
 
       elif clasificador == "Manager":
         # MENU BAR
-        pagina = st.radio('Cambiar Página', ['Home','Reporte', 'Manual', 'Automático'])
-        if pagina == "Home":
+        pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático', '🌤️Pronostico',
+                                             '⚙️Set-Training-Model'])
+        if pagina[1::] == "Home":
           view.home()
-        elif pagina == "Manual":
-          view.Manual()
-        elif pagina == "Automático":
-          view.automatico(auth,db,storage,email,password)
+        elif pagina[1::] == "Dashboard":
+          view.dashboard(auth, db, email, password)
+        elif pagina[1::] == "Manual":
+          view.Manual(storage)
+        elif pagina[1::] == "Automático":
+          view.automatico(auth, db, storage, email, password)
+        elif pagina[2::] == "Pronostico":
+          view.pronostico()
+        elif pagina[2::] == "Set-Training-Model":
+          view.ModeloEntrenamiento(auth, db, storage, email, password)
       elif clasificador == "Operator":
         # MENU BAR
-        pagina = st.radio('Cambiar Página', ['Home', 'Manual', 'Automático'])
-        if pagina == "Home":
+        pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático', '🌤️Pronostico',
+                                             '⚙️Set-Training-Model'])
+        if pagina[1::] == "Home":
           view.home()
-        elif pagina == "Manual":
-          view.Manual()
-        elif pagina == "Automático":
-          view.automatico(auth,db,storage,email,password)
+        elif pagina[1::] == "Dashboard":
+          view.dashboard(auth, db, email, password)
+        elif pagina[1::] == "Manual":
+          view.Manual(storage)
+        elif pagina[1::] == "Automático":
+          view.automatico(auth, db, storage, email, password)
+        elif pagina[2::] == "Pronostico":
+          view.pronostico()
+        elif pagina[2::] == "Set-Training-Model":
+          view.ModeloEntrenamiento(auth, db, storage, email, password)
 
     # except :
     #     st.error("Contraseña incorrecta")
