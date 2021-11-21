@@ -6,15 +6,15 @@ import view
 from PIL import Image
 
 #configuracion de la pagina
-st.set_page_config(page_title="HassPerú", page_icon="🥑")
-hide_st_style = """
-            <style>
-            --#MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            --header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+st.set_page_config(page_title="HassPerú", page_icon="🥑",initial_sidebar_state='collapsed')
+# hide_st_style = """
+#             <style>
+#             --#MainMenu {visibility: hidden;}
+#             footer {visibility: hidden;}
+#             --header {visibility: hidden;}
+#             </style>
+#             """
+# st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # Configuracion de  clave
 firebaseConfig = {
@@ -155,6 +155,7 @@ elif choice == 'Login':
                 "10 años de experiencia en el sector, dedicada al cultivo y comercialización de"
                 "paltas Hass y arándano a nivel nacional e internacional.</p>", unsafe_allow_html=True)
     st.markdown("Web Site: [HASS PERÚ](http://www.hassperu.com/es/)")
+
 
 
 
