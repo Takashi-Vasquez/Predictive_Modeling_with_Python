@@ -120,7 +120,7 @@ elif choice == 'Login':
         if pagina[1::] == "Home":
           view.home()
         elif pagina[1::] == "Dashboard":
-          view.dashboard(auth, db, email, password)
+          view.dashboard(auth, db,storage, email, password)
         elif pagina[1::] == "Manual":
           view.Manual(storage)
         elif pagina[1::] == "Automático":
@@ -136,7 +136,7 @@ elif choice == 'Login':
         if pagina[1::] == "Home":
           view.home()
         elif pagina[1::] == "Dashboard":
-          view.dashboard(auth, db, email, password)
+          view.dashboard(auth, db,storage, email, password)
         elif pagina[1::] == "Manual":
           view.Manual(storage)
         elif pagina[1::] == "Automático":
