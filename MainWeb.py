@@ -105,19 +105,13 @@ elif choice == 'Login':
       clasificador=db.child(user['localId']).child("Rol").get().val()
       if clasificador == "Owner":
         # MENU BAR
-        pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático','🌤️Pronostico','⚙️Set-Training-Model'])
+        pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard','🌤️Pronostico'])
         if pagina[1::]=="Home":
           view.home()
         elif pagina[1::]=="Dashboard":
           view.dashboard(auth,db,storage,email,password)
-        elif pagina[1::]=="Manual":
-          view.Manual(storage)
-        elif pagina[1::]=="Automático":
-          view.automatico(auth,db,storage,email,password)
         elif pagina[2::]=="Pronostico":
           view.pronostico()
-        elif pagina[2::]=="Set-Training-Model":
-          view.ModeloEntrenamiento(auth,db,storage,email,password)
 
       elif clasificador == "Manager":
         # MENU BAR
