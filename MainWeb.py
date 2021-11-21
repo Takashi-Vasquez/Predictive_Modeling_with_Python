@@ -47,8 +47,11 @@ email = st.sidebar.text_input('Correo')
 password = st.sidebar.text_input('Contraseña',type = 'password')
 roles = {"B*WAjkMR*:": "Owner", "iM8IA3": "Manager", "hpHIKY": "Operator"}
 
-# Sign up Block
+def Datos():
+  print("hola mundo")
+  return auth,db,storage,email,password
 
+# Sign up Block
 if choice == 'Sign up':
   Nombres = st.sidebar.text_input('Nombre y Apellido')
   usuario = st.sidebar.text_input('Nombre de usuario')
@@ -108,17 +111,17 @@ elif choice == 'Login':
         # MENU BAR
         pagina = st.radio('Cambiar Página', ['🥑Home', '📊Dashboard', '💪Manual', '🦾Automático','🌤️Pronostico','⚙️Set-Training-Model'])
         if pagina[1::]=="Home":
-          view.home()
+          view.home(auth,db,storage,email,password)
         elif pagina[1::]=="Dashboard":
           view.dashboard(auth,db,storage,email,password)
         elif pagina[1::]=="Manual":
-          view.Manual()
+          view.Manual(auth, db, storage, email, password)
         elif pagina[1::]=="Automático":
           view.automatico(auth,db,storage,email,password)
         elif pagina[2::]=="Pronostico":
           view.pronostico()
         elif pagina[2::]=="Set-Training-Model":
-          view.ModeloEntrenamiento()
+          view.ModeloEntrenamiento(auth,db,storage,email,password)
 
       elif clasificador == "Manager":
         # MENU BAR

@@ -7,19 +7,59 @@ import numpy as np
 import pickle
 import plotly.express as px
 from numpy import round
-from app import *
+from MainWeb import auth,db,storage,email,password,Datos
 import SENAMHI
 from Modelo import modelo_entrenamiento
 
-modelo_knn = pickle.load(open('modeloKNN.pkl', 'rb'))
-modelo_svm = pickle.load(open('modeloSVM.pkl', 'rb'))
-modelo_rl  = pickle.load(open('modeloRL.pkl', 'rb'))
-score      = pickle.load(open('score.pkl','rb'))
-datasets   = pickle.load(open('dataSets.pkl','rb'))
+def Binarios(auth,db,storage,email,password):
+    user = auth.sign_in_with_email_and_password(email, password)
+    # modeloKNN = storage.child("gs://db-hassperu.appspot.com/Modelo Entrenamiento/Data/dataSets.pkl")
+    # print("***************************************************************************************************")
+    # print("***************************************************************************************************")
+
+
+    path_on_cloudKNN = "/Modelo Entrenamiento/KNN/modeloKNN.pkl"
+    path_on_cloudRL = "/Modelo Entrenamiento/RL/modeloRL.pkl"
+    path_on_cloudSVM = "/Modelo Entrenamiento/SVM/modeloSVM.pkl"
+    path_on_cloudData = "/Modelo Entrenamiento/Data/dataSets.pkl"
+    path_on_cloudScore = "/Modelo Entrenamiento/Score/score.pkl"
+    storage.child(path_on_cloudKNN).download("","modeloKNN.pkl")
+    storage.child(path_on_cloudRL).download("", "modeloRL.pkl")
+    storage.child(path_on_cloudSVM).download("", "modeloSVM.pkl")
+    storage.child(path_on_cloudData).download("", "dataSets.pkl")
+    storage.child(path_on_cloudScore).download("", "score.pkl")
+
+    #anexo
+    # codigoKNN = db.child(user['localId']).child("Binario/KNN")
+    # codigoRL = db.child(user['localId']).child("Binario/RL").get()
+    # codigoSVM = db.child(user['localId']).child("Binario/SVM").get()
+    # codigoData = db.child(user['localId']).child("Binario/Data").get()
+    # codigoScore = db.child(user['localId']).child("Binario/Score").get()
+    # for data in codigoKNN.each():
+    #     modeloKNN = data.val()
+    # for data in codigoRL.each():
+    #     modeloRL = data.val()
+    # for data in codigoSVM.each():
+    #     modeloSVM = data.val()
+    # for data in codigoData.each():
+    #     BiDatasets = data.val()
+    # for data in codigoScore.each():
+    #     BiScore = data.val()
+
+    modelo_knn = pickle.load(open("modeloKNN.pkl", 'rb'))
+    modelo_svm = pickle.load(open("modeloSVM.pkl", 'rb'))
+    modelo_rl = pickle.load(open("modeloRL.pkl", 'rb'))
+    score = pickle.load(open("score.pkl", 'rb'))
+    datasets = pickle.load(open("dataSets.pkl", 'rb'))
+    return modelo_knn,modelo_svm,modelo_rl,score,datasets
+
 Titulo, detalle,tabla,link = SENAMHI.webScraping()
 now = datetime.now()
 
+global modelo_knn, modelo_svm, modelo_rl, score, datasets
+
 def prediccion(input_arr,menuopciones):
+
     if menuopciones == 'Regresion lineal':
         st.write("Modelo Regresion Lineal")
         prediccion_result = modelo_rl.predict(input_arr)
@@ -31,39 +71,42 @@ def prediccion(input_arr,menuopciones):
         prediccion_result =modelo_svm.predict(input_arr)
     return prediccion_result
 
-def sidebar():
-    # Selectores Panel izquierdo
-    opciones = ['Regresion lineal', 'KNN', 'SVM']
-    global menuopciones
-    menuopciones = st.sidebar.selectbox('Seleccione el modelo a utilizar', opciones)
-    st.sidebar.text("Precisión:")
-    if menuopciones == 'Regresion lineal':
-        if score["RL"] > 75:
-            st.sidebar.success(str(score["RL"]) + " %")
-        elif score["RL"] > 25 and score["RL"] < 75:
-            st.sidebar.warning(str(score["RL"]) + " %")
-        elif score["RL"] < 25:
-            st.sidebar.error(str(score["KNN"]) + " %")
-    elif menuopciones == 'KNN':
-        if score["KNN"] > 75:
-            st.sidebar.success(str(score["KNN"]) + " %")
-        elif score["KNN"] > 25 and score["KNN"] < 75:
-            st.sidebar.warning(str(score["KNN"]) + " %")
-        elif score["KNN"] < 25:
-            st.sidebar.error(str(score["KNN"]) + " %")
-    elif menuopciones == 'SVM':
-        if score["SVM"] > 75:
-            st.sidebar.success(str(score["SVM"]) + " %")
-        elif score["SVM"] > 25 and score["SVM"] < 75:
-            st.sidebar.warning(str(score["SVM"]) + " %")
-        elif score["SVM"] < 25:
-            st.sidebar.error(str(score["SVM"]) + " %")
-    return menuopciones
+def sidebar(auth, db, storage, email, password):
+    try:
+        modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(auth, db, storage, email, password)
+        # Selectores Panel izquierdo
+        opciones = ['Regresion lineal', 'KNN', 'SVM']
+        global menuopciones
+        menuopciones = st.sidebar.selectbox('Seleccione el modelo a utilizar', opciones)
+        st.sidebar.text("Precisión:")
+        if menuopciones == 'Regresion lineal':
+            if score["RL"] > 75:
+                st.sidebar.success(str(score["RL"]) + " %")
+            elif score["RL"] > 25 and score["RL"] < 75:
+                st.sidebar.warning(str(score["RL"]) + " %")
+            elif score["RL"] < 25:
+                st.sidebar.error(str(score["KNN"]) + " %")
+        elif menuopciones == 'KNN':
+            if score["KNN"] > 75:
+                st.sidebar.success(str(score["KNN"]) + " %")
+            elif score["KNN"] > 25 and score["KNN"] < 75:
+                st.sidebar.warning(str(score["KNN"]) + " %")
+            elif score["KNN"] < 25:
+                st.sidebar.error(str(score["KNN"]) + " %")
+        elif menuopciones == 'SVM':
+            if score["SVM"] > 75:
+                st.sidebar.success(str(score["SVM"]) + " %")
+            elif score["SVM"] > 25 and score["SVM"] < 75:
+                st.sidebar.warning(str(score["SVM"]) + " %")
+            elif score["SVM"] < 25:
+                st.sidebar.error(str(score["SVM"]) + " %")
+        return menuopciones
+    except:
+        st.error("no cuenta con ningun modelo de entrenamiento")
 
 
 #HOME PAGE
-def home():
-# if pagina == "Home":
+def home(auth,db,storage,email,password):
     st.title("Los mejores frutos de nuestra tierra by HassPerú")
     imagen=Image.open("Image/HassPeru.png")
     st.image(imagen, caption='Frescura, calidad y sabor', width=700)
@@ -261,9 +304,8 @@ def dashboard(auth,db,storage,email,password):
     except IOError:
      st.error("No hay ningún archivo en el Storage descarga en Automático")
 
-def Manual():
-# if pagina == "Manual":
-    sidebar()
+def Manual(auth, db, storage, email, password):
+    sidebar(auth, db, storage, email, password)
     #time.sleep(2)
     #Selectores Panel DERECHO
     st.subheader("CONDICIONES ")
@@ -293,8 +335,9 @@ def Manual():
         resultadoPredicción = prediccion(input_arr, menuopciones)
         st.write('Superficie Cosechada:     ',round(resultadoPredicción[0],2))
 def automatico(auth,db,storage,email,password):
-# if pagina == "Automático":
-    sidebar()
+    modelo_knn, modelo_svm, modelo_rl, score, datasets = Binarios(auth, db, storage, email, password)
+
+    sidebar(auth, db, storage, email, password)
     # Importacion de datos
     uploaded_file = st.file_uploader("Cargue el Archivo", type=['xlsx', 'csv'],
                                              help="Puede seleccionar archivo xlsx/csv para su predicción")
@@ -460,7 +503,8 @@ def pronostico():
                     unsafe_allow_html=True)
     except:
         st.error("La página de Senamhi ha caido")
-def ModeloEntrenamiento():
+
+def ModeloEntrenamiento(auth,db,storage,email,password):
     st.title("Ajustar el Modelo de Entrenamiento")
     #importar datasets a entrenar
     csv = st.file_uploader("Cargue el Archivo", type=['xlsx', 'csv'],
@@ -488,14 +532,15 @@ def ModeloEntrenamiento():
     with st.expander("KNeighborsRegressor"):
         n_neighbors= st.number_input("K neighbors",min_value=1,max_value=30,value=4)
     with st.expander("SVR"):
-        C=st.slider('Parámetro de regularización (C)', min_value=0.1,max_value=5.0,value=0.3,step=1.0)
+        C=st.slider('Parámetro de regularización (C)', min_value=0.1,max_value=5.0,value=1.0,step=0.1)
         gamma=st.radio('Gamma',['auto','scale'])
-        epsilon=st.number_input('Epsilon ', min_value=0.1, max_value=10.0, value=5.0, step=2.0)
+        epsilon=st.number_input('Epsilon ', min_value=0.1, max_value=10.0, value=2.0, step=0.1)
     col1,col2,col3=st.columns(3)
     ajustarModelo= col2.button("Ajustar Modelo")
 
     if ajustarModelo:
-        scoreKNN,scoreRL,scoreSVM=modelo_entrenamiento(df,test_size,random_state,shuffle,n_neighbors,C,gamma,epsilon)
+        scoreKNN,scoreRL,scoreSVM,\
+        datasets,score,modelo_knn,modelo_svm,modelo_rl=modelo_entrenamiento(df,test_size,random_state,shuffle,n_neighbors,C,gamma,epsilon)
         if scoreRL > 75:
             st.success(f"Precisión RL: {str(scoreRL)} %")
         elif scoreRL > 25 and scoreRL < 75:
@@ -514,6 +559,28 @@ def ModeloEntrenamiento():
             st.warning(f"Precisión SVR: {str(scoreSVM)} %")
         elif scoreSVM < 25:
             st.error(f"Precisión SVR: {str(scoreSVM)} %")
+        #subir el archivo a firebase
+        user = auth.sign_in_with_email_and_password(email, password)
+        path_on_cloudKNN = "/Modelo Entrenamiento/KNN/modeloKNN.pkl"
+        path_on_cloudRL = "/Modelo Entrenamiento/RL/modeloRL.pkl"
+        path_on_cloudSVM = "/Modelo Entrenamiento/SVM/modeloSVM.pkl"
+        path_on_cloudData = "/Modelo Entrenamiento/Data/dataSets.pkl"
+        path_on_cloudScore = "/Modelo Entrenamiento/Score/score.pkl"
+        fireb_uploadKNN = storage.child(path_on_cloudKNN).put("modeloKNN.pkl", user['idToken'])
+        fireb_uploadRL = storage.child(path_on_cloudRL).put("modeloRL.pkl", user['idToken'])
+        fireb_uploadSVM = storage.child(path_on_cloudSVM).put("modeloSVM.pkl", user['idToken'])
+        fireb_uploadData = storage.child(path_on_cloudData).put("dataSets.pkl", user['idToken'])
+        fireb_uploadScore = storage.child(path_on_cloudScore).put("score.pkl", user['idToken'])
+        # excel_urlKNN = storage.child(path_on_cloudKNN).get_url(fireb_uploadKNN['downloadTokens'])
+        # excel_urlRL = storage.child(path_on_cloudRL).get_url(fireb_uploadRL['downloadTokens'])
+        # excel_urlSVM = storage.child(path_on_cloudSVM).get_url(fireb_uploadSVM['downloadTokens'])
+        # excel_urlData = storage.child(path_on_cloudData).get_url(fireb_uploadData['downloadTokens'])
+        # excel_urlScore = storage.child(path_on_cloudScore).get_url(fireb_uploadScore['downloadTokens'])
+        # db.child(user['localId']).child("Binario/KNN").push(excel_urlKNN)
+        # db.child(user['localId']).child("Binario/RL").push(excel_urlRL)
+        # db.child(user['localId']).child("Binario/SVM").push(excel_urlSVM)
+        # db.child(user['localId']).child("Binario/Data").push(excel_urlData)
+        # db.child(user['localId']).child("Binario/Score").push(excel_urlScore)
 
 # if __name__ == "__main__":
 #     st_interface()

@@ -72,10 +72,10 @@ def modelo_entrenamiento(datos,Tsize,Rstate,Baraja,Nngs,C,G,EPS):
     ArrScore = {"KNN": round(knn.score(X_e, Y_e) * 100, 2), "SVM": round(svm.score(X_e, Y_e) * 100, 2), "RL": round(rl.score(X_e,Y_e)*100, 2)}
 
     #Guardando modelos de forma binaria
-    pickle.dump(datos,open('dataSets.pkl','wb'))
-    pickle.dump(ArrScore,open('score.pkl','wb'))
-    pickle.dump(m_knn,open('modeloKNN.pkl','wb'))
-    pickle.dump(m_svm,open('modeloSVM.pkl','wb'))
-    pickle.dump(m_rl,open('modeloRL.pkl','wb'))
+    datasets=pickle.dump(datos, open('dataSets.pkl', 'wb'))
+    score=pickle.dump(ArrScore, open('score.pkl', 'wb'))
+    modelo_knn = pickle.dump(m_knn, open('modeloKNN.pkl', 'wb'))
+    modelo_svm =pickle.dump(m_svm, open('modeloSVM.pkl', 'wb'))
+    modelo_rl=pickle.dump(m_rl, open('modeloRL.pkl', 'wb'))
 
-    return scoreKNN,scoreRL,scoreSVM
+    return scoreKNN,scoreRL,scoreSVM,datasets,score,modelo_knn,modelo_svm,modelo_rl
