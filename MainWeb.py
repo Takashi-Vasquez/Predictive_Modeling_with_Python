@@ -100,7 +100,7 @@ elif choice == 'Login':
   if checkbox:
     # try:
       user = auth.sign_in_with_email_and_password(email, password)
-      st.subheader("BIENVENIDO " + db.child(user['localId']).child("User").get().val().upper())
+      st.subheader("BIENVENIDO " + db.child(user['localId']).child("User").get().val())
       st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
       clasificador=db.child(user['localId']).child("Rol").get().val()
       if clasificador == "Owner":

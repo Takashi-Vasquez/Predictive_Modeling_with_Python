@@ -4,7 +4,7 @@ Clave para creacion de cuenta:
 Clave: B*WAjkMR*:
 
 'Manager'
-Clave: iM8IA3
+    Clave: iM8IA3
 
 'Operator'
 Clave: hpHIKY

@@ -23,11 +23,11 @@ def Binarios(storage):
     storage.child(path_on_cloudData).download("", "dataSets.pkl")
     storage.child(path_on_cloudScore).download("", "score.pkl")
 
-    modelo_knn = pickle.load(open("modeloKNN.pkl", 'rb'))
-    modelo_svm = pickle.load(open("modeloSVM.pkl", 'rb'))
-    modelo_rl = pickle.load(open("modeloRL.pkl", 'rb'))
-    score = pickle.load(open("score.pkl", 'rb'))
-    datasets = pickle.load(open("dataSets.pkl", 'rb'))
+    modelo_knn = pickle.load(open("Archivos Binarios/modeloKNN.pkl", 'rb'))
+    modelo_svm = pickle.load(open("Archivos Binarios/modeloSVM.pkl", 'rb'))
+    modelo_rl = pickle.load(open("Archivos Binarios/modeloRL.pkl", 'rb'))
+    score = pickle.load(open("Archivos Binarios/score.pkl", 'rb'))
+    datasets = pickle.load(open("Archivos Binarios/dataSets.pkl", 'rb'))
     return modelo_knn,modelo_svm,modelo_rl,score,datasets
 
 Titulo, detalle,tabla,link = SENAMHI.webScraping()
